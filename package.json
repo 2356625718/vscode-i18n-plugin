@@ -1,6 +1,6 @@
 {
-  "name": "vscode-i18n-plugin",
-  "displayName": "vscode-i18n-plugin",
+  "name": "I18n-Shopee",
+  "displayName": "I18n-Shopee",
   "description": "i18n",
   "version": "0.0.1",
   "engines": {
@@ -10,17 +10,16 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-i18n-plugin.helloWorld"
+    "workspaceContains:package.json",
+    "onLanguage:vue",
+    "onLanguage:html",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:svelte"
   ],
   "main": "./dist/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "vscode-i18n-plugin.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
   "scripts": {
     "prepare": "husky install",
     "vscode:prepublish": "pnpm run package",
@@ -34,9 +33,34 @@
     "test": "node ./out/test/runTest.js",
     "commit": "git cz"
   },
+  "contributes": {
+    "commands": [
+      {
+        "command": "I18n-Shopee.helloWorld",
+        "title": "Hello World"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "%extname%",
+      "properties": {
+        "I18n-Shopee.funcName": {
+          "type": "string",
+          "default": "$t",
+          "description": "%config.funcName%"
+        },
+        "I18n-Shopee.dir": {
+          "type": "string",
+          "default": "assets/i18n",
+          "description": "%config.dir%"
+        }
+      }
+    }
+  },
   "devDependencies": {
     "@commitlint/cli": "^17.4.3",
     "@commitlint/config-conventional": "^17.4.3",
+    "@types/babel__traverse": "^7.18.3",
     "@types/glob": "^8.0.1",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
@@ -70,5 +94,9 @@
     "commitizen": {
       "path": "node_modules/cz-customizable"
     }
+  },
+  "dependencies": {
+    "@babel/parser": "^7.21.1",
+    "@babel/traverse": "^7.21.0"
   }
 }
