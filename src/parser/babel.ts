@@ -5,6 +5,7 @@ import type {
   DetectionSource,
   ParserDefaultOptions,
 } from '../types';
+import { Log } from '../utils';
 
 const defaultOptions: Required<ParserDefaultOptions> = {
   ignoreJSXAttributes: ['class', 'className', 'key', 'style', 'ref', 'onClick'],
@@ -24,9 +25,12 @@ export function detect(input: string, userOptions: ParserDefaultOptions = {}) {
   });
 
   const handlePath = (path: any, type: DetectionSource) => {
-    const fullStart = path?.node?.start;
-    const fullEnd = path?.node?.end;
+    const fullStart = path?.start;
+    const fullEnd = path?.end;
     if (!fullStart || !fullEnd) {
+      return;
+    }
+    if (isIgnored(fullStart, fullEnd)) {
       return;
     }
     const quoted = type !== 'jsx-text';
@@ -62,6 +66,7 @@ export function detect(input: string, userOptions: ParserDefaultOptions = {}) {
 
   traverse(ast, {
     StringLiteral(path: any) {
+      Log.info('string');
       handlePath(path.node, 'js-string');
     },
     TemplateLiteral(path: any) {
@@ -87,6 +92,8 @@ export function detect(input: string, userOptions: ParserDefaultOptions = {}) {
       }
     },
   });
+  Log.info(JSON.stringify(detections));
+  return detections;
 }
 
 const isGlobalConsoleId = (id: any) => {

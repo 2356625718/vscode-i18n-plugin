@@ -1,6 +1,6 @@
 {
-  "name": "I18n-Shopee",
-  "displayName": "I18n-Shopee",
+  "name": "i18n-shopee",
+  "displayName": "i18n-shopee",
   "description": "i18n",
   "version": "0.0.1",
   "engines": {
@@ -36,7 +36,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "I18n-Shopee.helloWorld",
+        "command": "i18n-shopee.helloWorld",
         "title": "Hello World"
       }
     ],
@@ -44,12 +44,7 @@
       "type": "object",
       "title": "%extname%",
       "properties": {
-        "I18n-Shopee.funcName": {
-          "type": "string",
-          "default": "$t",
-          "description": "%config.funcName%"
-        },
-        "I18n-Shopee.dir": {
+        "i18n-shopee.dir": {
           "type": "string",
           "default": "assets/i18n",
           "description": "%config.dir%"
@@ -97,6 +92,8 @@
   },
   "dependencies": {
     "@babel/parser": "^7.21.1",
-    "@babel/traverse": "^7.21.0"
+    "@babel/traverse": "^7.21.0",
+    "lodash": "^4.17.21",
+    "ts-node": "^10.9.1"
   }
 }

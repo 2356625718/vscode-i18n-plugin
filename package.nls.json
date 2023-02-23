@@ -1,5 +1,4 @@
 {
-  "extname": "I18n-Shopee",
-  "config.funcName": "Translation function name",
+  "extname": "i18n-shopee",
   "config.dir": "I18n dir"
 }

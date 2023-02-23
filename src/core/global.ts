@@ -6,15 +6,24 @@ import {
   EventEmitter,
   ConfigurationChangeEvent,
 } from 'vscode';
-import { Log } from '../utils';
+import { PLUGIN_NAME } from '../const';
+import { getEnabledFramework } from '../frameworks';
+import { Framework } from '../frameworks/base';
+import { LanguageId, Log } from '../utils';
+import { normalizeUsageMatchRegExp } from '../utils/RegExp';
+import { Config } from './config';
 
 export class Global {
+  private static _loaders: Record<string, any> = {};
   private static _currentWorkspaceFolder: WorkspaceFolder;
   private static _rootpath: string;
   private static _onDidChangeRootPath: EventEmitter<string> =
     new EventEmitter();
+  private static _onDidChangeLoader: EventEmitter<any> = new EventEmitter();
 
   static context: ExtensionContext;
+  static enableFrameworks: Framework[] = [];
+  static _cacheUsageMatchRegExp: RegExp[] = [];
 
   static async init(context: ExtensionContext) {
     this.context = context;
@@ -31,9 +40,9 @@ export class Global {
     context.subscriptions.push(
       workspace.onDidCloseTextDocument(() => this.updateRootPath()),
     );
-    // context.subscriptions.push(
-    //   workspace.onDidChangeConfiguration(e => this.update(e))
-    // )
+    context.subscriptions.push(
+      workspace.onDidChangeConfiguration((e) => this.update(e)),
+    );
     await this.updateRootPath();
   }
 
@@ -70,5 +79,45 @@ export class Global {
 
   static async update(e?: ConfigurationChangeEvent) {
     let reload = false;
+    if (e) {
+      for (const config of Config.reloadConfig) {
+        const key = `${PLUGIN_NAME}.${config}`;
+        if (e.affectsConfiguration(key)) {
+          reload = true;
+          Log.info(`🧰 Config "${key}" changed, reloading`);
+          break;
+        }
+      }
+      if (reload) {
+        Log.info('🔁 Reloading loader');
+      }
+    }
+    this.enableFrameworks = getEnabledFramework();
+    const isValidProject = this.enableFrameworks.length > 0;
+    if (isValidProject) {
+      Log.info(
+        `🧩 Enabled frameworks: ${this.enableFrameworks
+          .map((i: Framework) => i.display)
+          .join(', ')}`,
+      );
+    } else {
+      Log.info(
+        '⚠ Current workspace is not a valid project, extension disabled',
+      );
+    }
+  }
+
+  static get loader() {
+    return this._loaders[this._rootpath];
+  }
+
+  static getUsageMatchRegex() {
+    if (this._cacheUsageMatchRegExp.length) {
+      return this._cacheUsageMatchRegExp;
+    }
+    this._cacheUsageMatchRegExp = normalizeUsageMatchRegExp(
+      this.enableFrameworks.flatMap((i) => i.usageMatchRegex),
+    );
+    return this._cacheUsageMatchRegExp;
   }
 }
